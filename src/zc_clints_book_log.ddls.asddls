@@ -7,6 +7,7 @@
     sizeCategory: #S,
     dataClass: #MIXED
 }
+@Metadata.allowExtensions: true
 define view entity zc_clints_book_log
   as select from ztclieli_diferba
 {
