@@ -56,7 +56,7 @@ annotate entity ZC_BOOKS_LOG with
   @UI: { lineItem: [{ position: 20,
                       importance: #HIGH }]}
   Author;
-  @Consumption.valueHelpDefinition: [{ entity:{ name: 'zc_catego_log_c404',
+  @Consumption.valueHelpDefinition: [{ entity:{ name: 'ZC_CAT_LOG',
                                                 element: 'Description'} }]
   @UI: { fieldGroup: [{ qualifier: 'DetallesLibro',
                         position: 20}],
