@@ -1,33 +1,30 @@
-class zcl_data_gen_ac definition
-  public
-  final
-  create public .
+CLASS zcl_insert_data_1303 DEFINITION
+  PUBLIC
+  FINAL
+  CREATE PUBLIC .
 
-  public section.
-    interfaces if_oo_adt_classrun.
-
-  protected section.
-  private section.
+  PUBLIC SECTION.
+    INTERFACES if_oo_adt_classrun.
+  PROTECTED SECTION.
+  PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_DATA_GEN_AC IMPLEMENTATION.
+CLASS ZCL_INSERT_DATA_1303 IMPLEMENTATION.
 
 
-  method if_oo_adt_classrun~main.
+  METHOD if_oo_adt_classrun~main.
 
+    " testing new change in GitHub
+    DATA: lt_acc_categ TYPE TABLE OF ztb_a_categ_1303,
+          lt_catego    TYPE TABLE OF ztb_catego_1303,
+          lt_clientes  TYPE TABLE OF ztb_cliente_1303,
+          lt_clnts_lib TYPE TABLE OF ztb_clntlib_1303,
+          lt_libros    TYPE TABLE OF ztb_libros_1303.
 
-" testing new change in GitHub
-    data: lt_acc_categ type table of ztacccat_diferba,
-          lt_catego    type table of ztcat_diferba,
-          lt_clientes  type table of ztclie_diferba,
-          lt_clnts_lib type table of ztclieli_diferba,
-          lt_libros    type table of ztlibros_diferba.
-
-******** ztacc_catg_c404 ********
     "fill internal table
-    lt_acc_categ = value #(
+    lt_acc_categ = VALUE #(
     ( bi_categ = 'A' tipo_acceso = '1' )
     ( bi_categ = 'B' tipo_acceso = '1' )
     ( bi_categ = 'C' tipo_acceso = '2' )
@@ -38,16 +35,15 @@ CLASS ZCL_DATA_GEN_AC IMPLEMENTATION.
     ( bi_categ = 'H' tipo_acceso = '4' ) ).
 
     "Delete possible entries; insert new entries
-    delete from ztacccat_diferba.
-    insert ztacccat_diferba from table @lt_acc_categ.
+    DELETE FROM ztb_a_categ_1303.
+    INSERT ztb_a_categ_1303 FROM TABLE @lt_acc_categ.
 
-    if sy-subrc eq 0.
+    IF sy-subrc EQ 0.
       out->write( |Acceso Categorias: { sy-dbcnt } registros insertados| ).
-    endif.
+    ENDIF.
 
-******** ztcatego_c404 ********
     "fill internal table
-    lt_catego = value #(
+    lt_catego = VALUE #(
     ( bi_categ ='A' descripcion ='Filosofía, psicología')
     ( bi_categ ='B' descripcion ='Religión, mitología')
     ( bi_categ ='C' descripcion ='Ciencias sociales (derecho, política, economía)')
@@ -58,16 +54,15 @@ CLASS ZCL_DATA_GEN_AC IMPLEMENTATION.
     ( bi_categ ='H' descripcion ='Geografía, historia') ).
 
     "Delete possible entries; insert new entries
-    delete from ztcat_diferba.
-    insert ztcat_diferba from table @lt_catego.
+    DELETE FROM ztb_catego_1303.
+    INSERT ztb_catego_1303 FROM TABLE @lt_catego.
 
-    if sy-subrc eq 0.
+    IF sy-subrc EQ 0.
       out->write( |Categorias: { sy-dbcnt } registros insertados| ).
-    endif.
+    ENDIF.
 
-******** ztclientes_c404 ********
     "fill internal table
-    lt_clientes = value #(
+    lt_clientes = VALUE #(
     ( id_cliente = '005638984K' tipo_acceso = '1' nombre = 'Andrew' apellidos = 'Roberts' email = 'STEPHANIE.ROBERTS@EMAIL.COM' url = 'https://d4.logaligroup.com/wp-content/uploads/2019/11/24.2.png' )
     ( id_cliente = '049320909Q' tipo_acceso = '2' nombre = 'Natalie' apellidos = 'Clark' email = 'PETER.CLARK@EMAIL.COM' url = 'https://d4.logaligroup.com/wp-content/uploads/2019/12/41.png' )
     ( id_cliente = '049573865T' tipo_acceso = '1' nombre = 'Faith' apellidos = 'Black' email = 'DAN.BLACK@EMAIL.COM' url = 'https://d4.logaligroup.com/wp-content/uploads/2019/11/24.2.png' )
@@ -90,15 +85,14 @@ CLASS ZCL_DATA_GEN_AC IMPLEMENTATION.
     ( id_cliente = '540867547H' tipo_acceso = '5' nombre = 'Adrian' apellidos = 'Young' email = 'PENELOPE.YOUNG@EMAIL.COM' url = 'https://d4.logaligroup.com/wp-content/uploads/2019/11/24.2.png' ) ).
 
     "Delete possible entries; insert new entries
-    delete from ztclie_diferba.
-    insert ztclie_diferba from table @lt_clientes.
+    DELETE FROM ztb_cliente_1303.
+    INSERT ztb_cliente_1303 FROM TABLE @lt_clientes.
 
-    if sy-subrc eq 0.
+    IF sy-subrc EQ 0.
       out->write( |Clientes: { sy-dbcnt } registros insertados| ).
-    endif.
+    ENDIF.
 
-******** ztclnts_lib_c404
-    lt_clnts_lib = value #(
+    lt_clnts_lib = VALUE #(
     ( id_cliente = '005638984K' id_libro = '000001' )
     ( id_cliente = '005638984K' id_libro = '000020' )
     ( id_cliente = '005638984K' id_libro = '000021' )
@@ -129,14 +123,14 @@ CLASS ZCL_DATA_GEN_AC IMPLEMENTATION.
     ( id_cliente = '453532543O' id_libro = '000022' )
     ( id_cliente = '489632882D' id_libro = '000019' )
     ( id_cliente = '540867547H' id_libro = '000020' ) ).
+
     "Delete possible entries; insert new entries
-    delete from ztclieli_diferba.
-    insert ztclieli_diferba from table @lt_clnts_lib.
+    DELETE FROM ztb_clntlib_1303.
+    INSERT ztb_clntlib_1303 FROM TABLE @lt_clnts_lib.
 
 
-******** ztlibros_c404 ********
     "fill internal table
-    lt_libros = value #(
+    lt_libros = VALUE #(
     ( id_libro = '000001' bi_categ = 'A' titulo = 'Diccionario de los sentimientos' autor = 'CAGIGAL, Jose Maria' editorial = 'ANAGRAMA' idioma = 'S' paginas = 350 precio = '84.99' moneda = 'USD' formato = 'E' url =
     'https://eltinteroeditorial.com/wp-content/uploads/2017/06/c%C3%B3mo-es-el-proceso-de-edici%C3%B3n.jpg' )
     ( id_libro = '000002' bi_categ = 'A' titulo = 'La selva del lenguaje' autor = 'Hoagland , M.' editorial = 'LATERZ A' idioma = 'S' paginas = 486 precio = 146 moneda = 'USD' formato = 'P' url =
@@ -199,16 +193,14 @@ CLASS ZCL_DATA_GEN_AC IMPLEMENTATION.
     'https://eltinteroeditorial.com/wp-content/uploads/2017/06/c%C3%B3mo-es-el-proceso-de-edici%C3%B3n.jpg' )
     ( id_libro = '000072' bi_categ = 'G' titulo = 'Aves sin nido' autor = 'Clorinda Matto de Turner' editorial = 'Visor Libros' idioma = 'S' paginas = 356 precio = '34.15' moneda = 'USD' formato = 'P' url =
     'https://eltinteroeditorial.com/wp-content/uploads/2017/06/c%C3%B3mo-es-el-proceso-de-edici%C3%B3n.jpg' ) ).
+
     "Delete possible entries; insert new entries
-    delete from ztlibros_diferba.
-    insert ztlibros_diferba from table @lt_libros.
+    DELETE FROM ztb_libros_1303.
+    INSERT ztb_libros_1303 FROM TABLE @lt_libros.
 
-    if sy-subrc eq 0.
+    IF sy-subrc EQ 0.
       out->write( |Libros: { sy-dbcnt } registros insertados| ).
-    endif.
+    ENDIF.
 
-    "Check result in console
-    out->write( 'DONE!' ).
-
-  endmethod.
+  ENDMETHOD.
 ENDCLASS.

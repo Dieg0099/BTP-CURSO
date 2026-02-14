@@ -11,7 +11,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_insert_data_diferba IMPLEMENTATION.
+CLASS ZCL_INSERT_DATA_DIFERBA IMPLEMENTATION.
 
 
   METHOD if_oo_adt_classrun~main.
@@ -24,5 +24,4 @@ CLASS zcl_insert_data_diferba IMPLEMENTATION.
     MODIFY zrent_customer FROM TABLE @lt_datos.
 
   ENDMETHOD.
-
 ENDCLASS.
