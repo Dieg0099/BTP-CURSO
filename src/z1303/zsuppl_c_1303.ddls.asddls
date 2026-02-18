@@ -2,22 +2,20 @@
 @EndUserText.label: 'Booking Supplement - Consumption Entity'
 @Metadata.ignorePropagatedAnnotations: true
 @Metadata.allowExtensions: true
-define view entity ZBKSPPL_C_DFBP
-  as projection on ZBKSPPL_R_dfbp
+define view entity ZSUPPL_C_1303
+  as projection on ZSUPPL_r_1303
 {
-  key BooksupplUUID,
-      TravelUUID,
-      BookingUUID,
-      BookingSupplementID,
+  key TravelID,
+  key BookingID,
+  key BookingSupplementID,
       SupplementID,
       @Semantics.amount.currencyCode: 'CurrencyCode'
       Price,
       CurrencyCode,
-      LocalLastChangedAt,
-
+      LastChangedAt,
       /* Associations */
-      _Booking : redirected to parent ZBOOKING_C_DFBP,
+      _Booking : redirected to parent ZBOOKING_C_1303,
       _Product,
       _SupplementText,
-      _Travel : redirected to ZTRAVEL_C_DFBP
+      _Travel : redirected to ZTRAVEL_C_1303
 }

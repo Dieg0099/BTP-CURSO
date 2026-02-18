@@ -2,12 +2,11 @@
 @EndUserText.label: 'Travel - Consumption Entity'
 @Metadata.ignorePropagatedAnnotations: true
 @Metadata.allowExtensions: true
-define root view entity ZTRAVEL_C_DFBP
+define root view entity ZTRAVEL_C_1303
   provider contract transactional_query
-  as projection on ZTRAVEL_R_DFBP
+  as projection on ZTRAVEL_R_1303
 {
-  key TravelUUID,
-      TravelID,
+  key TravelID,
       AgencyID,
       CustomerID,
       BeginDate,
@@ -19,16 +18,13 @@ define root view entity ZTRAVEL_C_DFBP
       CurrencyCode,
       Description,
       OverallStatus,
-      
-      LocalCreatedBy,
-      LocalCreatedAt,
-      LocalLastChangedBy,
-      LocalLastChangedAt,
+      CreatedBy,
+      CreatedAt,
+      LastChangedBy,
       LastChangedAt,
-
       /* Associations */
       _Agency,
-      _Booking : redirected to composition child ZBOOKING_C_DFBP,
+      _Booking : redirected to composition child ZBOOKING_C_1303,
       _Currency,
       _Customer,
       _OverallStatus

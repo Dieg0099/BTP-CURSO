@@ -1,0 +1,35 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+    typeName: '',
+    typeNamePlural: '',
+    typeImageUrl: '',
+    imageUrl: '',
+    title: {
+        type: #STANDARD,
+        label: '',
+        iconUrl: '',
+        criticality: '',
+        criticalityRepresentation: #WITHOUT_ICON,
+        value: '',
+        valueQualifier: '',
+        targetElement: '',
+        url: ''
+    },
+    description: {
+        type: #STANDARD,
+        label: '',
+        iconUrl: '',
+        criticality: '',
+        criticalityRepresentation: #WITHOUT_ICON,
+        value: '',
+        valueQualifier: '',
+        targetElement: '',
+        url: ''
+    }
+}
+annotate entity ZBKSPPL_C_DFBP
+    with 
+{
+//    element_name;
+    
+}

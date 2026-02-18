@@ -5,7 +5,7 @@
 define view entity ZBOOKING_R_1303
   as select from ztb_booking_1303
   association        to parent ZTRAVEL_R_1303    as _Travel        on  $projection.TravelID = _Travel.TravelID
-//  composition [0..*] of Zsuppl_r_1303            as _Bksppl
+  composition [0..*] of ZSUPPL_r_1303            as _Bksppl
   association [1..1] to /DMO/I_Customer          as _Customer      on  $projection.CustomerID = _Customer.CustomerID
   association [1..1] to /DMO/I_Carrier           as _Carrier       on  $projection.AirlineID = _Carrier.AirlineID
   association [1..1] to /DMO/I_Connection        as _Connection    on  $projection.AirlineID    = _Connection.AirlineID
@@ -30,6 +30,6 @@ define view entity ZBOOKING_R_1303
       _Customer,
       _Carrier,
       _Connection,
-      _BookingStatus
-//      _Bksppl
+      _BookingStatus,
+      _Bksppl
 }
