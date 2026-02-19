@@ -1,0 +1,90 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+    typeName: 'Travel',
+    typeNamePlural: 'Travels',
+    title: {
+        type: #STANDARD,
+        label: 'Travel ID',
+        value: 'TravelID'
+    },
+    description: {
+        type: #STANDARD,
+        label: 'Travel ID',
+        value: 'TravelID'
+    }
+}
+@UI.presentationVariant: [{
+    sortOrder: [{
+        by: 'TravelID',
+        direction: #DESC
+    }],
+    visualizations: [{
+        type: #AS_LINEITEM
+    }]
+}]
+@Search.searchable: true
+annotate entity ZTRAVEL_C_1303 with
+{
+
+  @UI.facet: [{ id: 'Travel', purpose: #STANDARD, position: 10, label: 'Travel', type: #IDENTIFICATION_REFERENCE },
+              { id: 'Booking', purpose: #STANDARD, position: 20, label: 'Booking', type: #LINEITEM_REFERENCE, targetElement: '_Booking' }]
+  @UI.lineItem: [{ position: 10, importance: #HIGH }]
+  @UI.selectionField: [{ position: 10 }]
+  @Search: { defaultSearchElement: true, ranking: #HIGH, fuzzinessThreshold: 0.9 }
+
+  TravelID;
+
+  @UI.selectionField: [{ position: 20 }]
+  @UI.identification: [ { position: 20 }]
+  @UI.lineItem: [{ position: 20, importance: #HIGH }]
+  AgencyID;
+
+  @UI.selectionField: [{ position: 30 }]
+  @UI.identification: [ { position: 30 }]
+  @UI.lineItem: [{ position: 30, importance: #HIGH }]
+  CustomerID;
+  
+  @UI.identification: [ { position: 40 }]
+  @UI.lineItem: [{ position: 40, importance: #MEDIUM }]
+  BeginDate;
+  
+  @UI.identification: [ { position: 50 }]
+  @UI.lineItem: [{ position: 50, importance: #MEDIUM }]
+  EndDate;
+  
+  @UI.identification: [ { position: 60 }]
+  @UI.lineItem: [{ position: 60, importance: #HIGH }]
+  BookingFee;
+  
+  @UI.identification: [ { position: 70 }]
+  @UI.lineItem: [{ position: 70, importance: #HIGH }]
+  TotalPrice;
+  
+  @UI.identification: [ { position: 80 }]
+  @UI.lineItem: [{ position: 80, importance: #HIGH }]
+  CurrencyCode;
+
+  @UI.lineItem: [{ position: 90, importance: #HIGH}]
+  @Search: { defaultSearchElement: true, ranking: #HIGH, fuzzinessThreshold: 0.9 }
+  Description;
+
+  @UI.lineItem: [{ position: 100, importance: #HIGH}]
+  OverallStatus;
+
+  @UI.lineItem: [{ position: 110, importance: #LOW}]
+  CreatedBy;
+
+  @UI.lineItem: [{ position: 120, importance: #LOW }]
+  CreatedAt;
+
+  @UI.lineItem: [{ position: 130, importance:#LOW }]
+  LastChangedBy;
+
+  @UI.lineItem: [{ position: 140, importance: #LOW }]
+  LastChangedAt;
+
+  /* Associations */
+  @UI.lineItem: [{ position: 150, importance: #LOW }]
+  _Booking;
+
+}

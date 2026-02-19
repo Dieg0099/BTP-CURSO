@@ -1,0 +1,55 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: {
+    typeName: 'Booking Supplement',
+    typeNamePlural: 'Booking Supplements',
+    title: {
+        type: #STANDARD,
+        label: 'Booking Supplement ID',
+        value: 'BookingSupplementID'
+    },
+    description: {
+        type: #STANDARD,
+        label: 'Booking Supplement ID',
+        value: 'BookingSupplementID'
+    }
+}
+@UI.presentationVariant: [{
+    sortOrder: [{
+        by: 'BookingSupplementID',
+        direction: #DESC
+    }],
+    visualizations: [{
+        type: #AS_LINEITEM
+    }]
+}]
+annotate entity ZSUPPL_C_1303 with
+{
+
+  @UI.hidden: true
+  TravelID;
+
+  @UI.hidden: true
+  BookingID;
+
+  @UI.facet: [{ id: 'BookingSupplement', purpose: #STANDARD, position: 10, label: 'Booking Supplement', type: #IDENTIFICATION_REFERENCE }]
+  @UI.lineItem: [{ position: 10, importance: #HIGH }]
+  @UI.identification: [{ position: 10 }]
+  BookingSupplementID;
+
+  @UI.lineItem: [{ position: 20, importance: #HIGH }]
+  @UI.identification: [{ position: 20 }]
+  SupplementID;
+
+  @UI.lineItem: [{ position: 30, importance: #HIGH }]
+  @UI.identification: [{ position: 30 }]
+  Price;
+
+  @UI.lineItem: [{ position: 40, importance: #HIGH }]
+  @UI.identification: [{ position: 40 }]
+  CurrencyCode;
+
+  @UI.lineItem: [{ position: 50, importance: #LOW }]
+  @UI.identification: [{ position: 50 }]
+  LastChangedAt;
+
+}
