@@ -1,35 +1,42 @@
 @Metadata.layer: #CORE
 @UI.headerInfo: {
-    typeName: '',
-    typeNamePlural: '',
-    typeImageUrl: '',
-    imageUrl: '',
+    typeName: 'Booking Supplement',
+    typeNamePlural: 'Booking Supplements',
     title: {
         type: #STANDARD,
-        label: '',
-        iconUrl: '',
-        criticality: '',
-        criticalityRepresentation: #WITHOUT_ICON,
-        value: '',
-        valueQualifier: '',
-        targetElement: '',
-        url: ''
-    },
-    description: {
-        type: #STANDARD,
-        label: '',
-        iconUrl: '',
-        criticality: '',
-        criticalityRepresentation: #WITHOUT_ICON,
-        value: '',
-        valueQualifier: '',
-        targetElement: '',
-        url: ''
+        label: 'Booking Supplement',
+        value: 'BookingSupplementID'
     }
 }
-annotate entity ZBKSPPL_C_DFBP
-    with 
+annotate entity ZBKSPPL_C_DFBP with
 {
-//    element_name;
-    
+  @UI.facet: [{ id: 'BookingSupplement',
+                purpose: #STANDARD,
+                position: 10,
+                label: 'Booking Supplement',
+                type: #IDENTIFICATION_REFERENCE }]
+  @UI.hidden: true
+  BooksupplUUID;
+
+  @UI.hidden: true
+  TravelUUID;
+
+  @UI.hidden: true
+  BookingUUID;
+
+  @UI:{ lineItem: [{ position: 10, importance: #HIGH }],
+   identification: [{ position: 10 }]}
+  BookingSupplementID;
+
+  @UI:{ lineItem: [{ position: 20, importance: #HIGH }],
+   identification: [{ position: 20 }]}
+  SupplementID;
+
+  @UI:{ lineItem: [{ position: 30, importance: #HIGH }],
+   identification: [{ position: 30 }]}
+  Price;
+
+  @UI.hidden: true
+  LocalLastChangedAt;
+
 }
