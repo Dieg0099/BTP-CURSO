@@ -1,0 +1,5 @@
+CLASS zbp_booking_r_dfbp DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF ztravel_r_dfbp.
+ENDCLASS.
+
+CLASS zbp_booking_r_dfbp IMPLEMENTATION.
+ENDCLASS.

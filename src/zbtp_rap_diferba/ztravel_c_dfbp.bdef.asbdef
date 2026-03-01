@@ -1,0 +1,47 @@
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for ZTRAVEL_C_DFBP alias Travel
+{
+  use create;
+  use update;
+  use delete;
+
+  use action acceptTravel;
+  use action rejectTravel;
+  use action deductDiscount;
+  use action validateCustomerID;
+  use action validateAgencyID;
+  use action validateDateRange;
+
+  use action edit;
+  use action Activate;
+  use action Discard;
+  use action Resume;
+  use action Prepare;
+
+  use association _Booking { create; with draft; }
+}
+
+define behavior for ZBOOKING_C_DFBP alias Booking
+{
+  use update;
+  use delete;
+
+  use action validateFligtCost;
+
+  use association _Bksppl { create; with draft; }
+  use association _Travel { with draft; }
+}
+
+define behavior for ZBKSPPL_C_DFBP alias BookingSupplement
+{
+  use update;
+  use delete;
+
+  use action validateSupplementPrice;
+
+  use association _Travel { with draft; }
+  use association _Booking { with draft; }
+}
