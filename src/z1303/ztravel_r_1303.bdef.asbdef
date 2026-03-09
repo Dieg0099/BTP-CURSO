@@ -1,0 +1,80 @@
+managed;
+//strict ( 2 );
+
+define behavior for ZTRAVEL_R_1303 alias Travel
+implementation in class zbp_travel_r_1303 unique
+persistent table ztb_travel_1303
+lock master
+authorization master ( instance )
+etag master LastChangedAt
+{
+  create ( authorization : global );
+  update;
+  delete;
+
+  association _Booking { create; }
+
+  field ( readonly ) CreatedBy, CreatedAt, LastChangedBy, LastChangedAt;
+  field ( mandatory ) AgencyID, OverallStatus, BookingFee, CurrencyCode;
+  field ( features : instance ) TravelID;
+
+  action ( features : instance ) acceptTravel result [1] $self;
+  action ( features : instance ) rejectTravel result [1] $self;
+  action createTravelByTemplate result [1] $self;
+
+  validation validateCustomer on save { create; field CustomerID; }
+  validation validateDates on save { create; field BeginDate, EndDate; }
+  validation validateStatus on save { create; field OverallStatus; }
+
+
+  mapping for ztb_travel_1303 corresponding;
+
+}
+
+define behavior for ZBOOKING_R_1303 alias Booking
+implementation in class zbp_booking_r_1303 unique
+persistent table ztb_booking_1303
+lock dependent by _Travel
+authorization dependent by _Travel
+etag master LastChangedAt
+{
+  update;
+  delete;
+
+  association _Travel;
+  association _Bksppl { create; }
+
+  field ( readonly ) TravelID;
+  field ( mandatory ) AirlineID, ConnectionID, FlightDate, BookingStatus;
+
+  determination calculateTotalFlightPrice on modify { create; field FlightPrice; }
+  determination calculateTotalSupplimPrice on modify { create; field CurrencyCode; }
+
+  validation validateStatus on save { create; field BookingStatus; }
+
+
+  mapping for ztb_booking_1303 corresponding;
+
+}
+
+define behavior for ZSUPPL_r_1303 alias BookingSupplement
+implementation in class zbp_suppl_r_1303 unique
+with unmanaged save
+lock dependent by _Travel
+authorization dependent by _Travel
+etag master LastChangedAt
+{
+  update;
+  delete;
+
+  association _Travel;
+  association _Booking;
+
+  field ( readonly ) TravelID, BookingID;
+  field ( mandatory ) SupplementID, Price;
+
+  determination calculateTotalSupplimPrice on modify { create; field Price, CurrencyCode; }
+
+  mapping for ztb_suppl_1303 corresponding;
+
+}

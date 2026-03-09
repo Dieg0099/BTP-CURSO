@@ -131,7 +131,7 @@ etag master LocalLastChangedAt
 
   }
 
-  mapping for zbooking_c404_a
+  mapping for zbooking_dfbp_a
     {
       BookingUUID        = booking_uuid;
       TravelUUID         = parent_uuid;
