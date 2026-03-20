@@ -87,7 +87,71 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_instance_authorizations.
+
+    DATA: update_requested TYPE abap_bool,
+          update_granted   TYPE abap_bool,
+          delete_requested TYPE abap_bool,
+          delete_granted   TYPE abap_bool.
+
+    "EML
+    READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    FIELDS ( AgencyID )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(travels).
+
+    update_requested = COND #( WHEN requested_authorizations-%update = if_abap_behv=>mk-on
+                                 OR requested_authorizations-%action-Edit = if_abap_behv=>mk-on
+                               THEN abap_true ELSE abap_false ).
+
+    delete_requested = COND #( WHEN requested_authorizations-%delete = if_abap_behv=>mk-on
+                               THEN abap_true ELSE abap_false ).
+
+    DATA(lv_technical_name) = cl_abap_context_info=>get_user_technical_name(  ).
+
+    LOOP AT travels INTO DATA(travel).
+
+      IF update_requested = abap_true.
+        IF lv_technical_name = 'CB9980001303' AND travel-AgencyID <> '70014'.
+          update_granted = abap_true.
+        ELSE.
+          update_granted = abap_false.
+          APPEND VALUE #( %msg = NEW /dmo/cm_flight_messages( textid = /dmo/cm_flight_messages=>not_authorized_for_agencyid
+                                                              agency_id = travel-AgencyID
+                                                              severity = if_abap_behv_message=>severity-error )
+                          %global = if_abap_behv=>mk-on ) TO reported-travel.
+        ENDIF.
+      ENDIF.
+
+      IF delete_requested = abap_true.
+        IF lv_technical_name = 'CB9980001303' AND travel-AgencyID <> '70014'.
+          delete_granted = abap_true.
+        ELSE.
+          delete_granted = abap_false.
+          APPEND VALUE #( %msg = NEW /dmo/cm_flight_messages( textid = /dmo/cm_flight_messages=>not_authorized_for_agencyid
+                                                              agency_id = travel-AgencyID
+                                                              severity = if_abap_behv_message=>severity-error )
+                          %global = if_abap_behv=>mk-on ) TO reported-travel.
+        ENDIF.
+      ENDIF.
+
+*Set Result
+
+      APPEND VALUE #( LET upd_auth = COND #( WHEN update_granted = abap_true
+                                             THEN if_abap_behv=>auth-allowed
+                                             ELSE if_abap_behv=>auth-unauthorized )
+                          del_auth = COND #( WHEN delete_granted = abap_true
+                                             THEN if_abap_behv=>auth-allowed
+                                             ELSE if_abap_behv=>auth-unauthorized )
+                      IN %tky = travel-%tky
+                         %update = upd_auth
+                         %action-edit = upd_auth
+                         %delete = del_auth ) TO result.
+
+    ENDLOOP.
+
   ENDMETHOD.
+
 
   METHOD get_global_authorizations.
 
@@ -179,11 +243,150 @@ CLASS lhc_Travel IMPLEMENTATION.
 
   METHOD deductDiscount.
 
+    DATA travels_for_update TYPE TABLE FOR UPDATE ztravel_r_dfbp.
 
+    DATA(keys_discount) = keys.
+
+    LOOP AT keys_discount ASSIGNING FIELD-SYMBOL(<key_discount>)
+                          WHERE %param-discount_percent IS INITIAL
+                             OR %param-discount_percent > 100
+                             OR %param-discount_percent <= 0.
+
+      APPEND VALUE #( %tky = <key_discount>-%tky ) TO failed-travel.
+
+      APPEND VALUE #( %tky = <key_discount>-%tky
+                      %msg = NEW /dmo/cm_flight_messages( textid = /dmo/cm_flight_messages=>discount_invalid
+                                                          severity = if_abap_behv_message=>severity-error )
+                      %element-BookingFee = if_abap_behv=>mk-on
+                      %op-%action-deductDiscount = if_abap_behv=>mk-on ) TO reported-travel.
+    ENDLOOP.
+
+    CHECK failed-travel IS INITIAL.
+
+    READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    FIELDS ( BookingFee  )
+    WITH CORRESPONDING #( keys_discount )
+    RESULT DATA(travels).
+
+    DATA percentage TYPE decfloat16.
+
+    LOOP AT travels ASSIGNING FIELD-SYMBOL(<travel>).
+
+      DATA(discount_percent) = keys_discount[ KEY id %tky = <travel>-%tky ]-%param-discount_percent.
+      percentage = discount_percent / 100.
+      DATA(reduce_fee) = <travel>-BookingFee * ( 1 - percentage ).
+
+      APPEND VALUE #(  %tky = <travel>-%tky
+                       bookingfee = reduce_fee ) TO travels_for_update.
+
+    ENDLOOP.
+
+    MODIFY ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    UPDATE
+    FIELDS ( BookingFee )
+    WITH travels_for_update.
+
+    READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    ALL FIELDS
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(travels_discount).
+
+    result = VALUE #( FOR travel IN travels_discount ( %tky = travel-%tky
+                                                       %param = travel ) ).
 
   ENDMETHOD.
 
   METHOD reCalcTotalPrice.
+
+    TYPES: BEGIN OF ty_amount_per_curr,
+             amount        TYPE /dmo/total_price,
+             currency_code TYPE /dmo/currency_code,
+           END OF ty_amount_per_curr.
+
+    DATA: amount_per_curr TYPE STANDARD TABLE OF ty_amount_per_curr.
+
+    "Read travel
+    READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    FIELDS ( BookingFee CurrencyCode )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(travels).
+
+    DELETE travels WHERE CurrencyCode IS INITIAL.
+
+    LOOP AT travels ASSIGNING FIELD-SYMBOL(<travel>).
+
+      amount_per_curr = VALUE #( ( amount = <travel>-BookingFee
+                                   currency_code = <travel>-CurrencyCode ) ).
+
+      "Read Bookings
+      READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+      ENTITY Travel BY \_Booking
+      FIELDS (  FlightPrice CurrencyCode )
+      WITH VALUE #( ( %tky = <travel>-%tky ) )
+      RESULT DATA(bookings).
+
+      LOOP AT bookings INTO DATA(booking) WHERE CurrencyCode IS NOT INITIAL.
+
+        COLLECT VALUE ty_amount_per_curr( amount = booking-FlightPrice
+                                          currency_code = booking-CurrencyCode ) INTO amount_per_curr.
+
+      ENDLOOP.
+
+      "Read Booking Supplements
+      READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+      ENTITY Booking BY \_Bksppl
+      FIELDS ( Price CurrencyCode )
+      WITH VALUE #( FOR r_booking IN bookings ( %tky = r_booking-%tky ) )
+      RESULT DATA(bksppls).
+
+      LOOP AT bksppls INTO DATA(bksppl) WHERE CurrencyCode IS NOT INITIAL.
+
+        COLLECT VALUE ty_amount_per_curr( amount = bksppl-Price
+                                          currency_code = bksppl-CurrencyCode ) INTO amount_per_curr.
+
+      ENDLOOP.
+
+      CLEAR: <travel>-TotalPrice.
+
+      LOOP AT amount_per_curr INTO DATA(single_amt_per_curr).
+
+        "Currency Conversion
+        IF single_amt_per_curr-currency_code = <travel>-CurrencyCode.
+
+          <travel>-TotalPrice += single_amt_per_curr-amount.
+
+        ELSE.
+
+          /dmo/cl_flight_amdp=>convert_currency(
+            EXPORTING
+              iv_amount               = single_amt_per_curr-amount
+              iv_currency_code_source = single_amt_per_curr-currency_code
+              iv_currency_code_target = <travel>-CurrencyCode
+              iv_exchange_rate_date   = cl_abap_context_info=>get_system_date( )
+            IMPORTING
+              ev_amount               = DATA(total_booking_price_per_curr)
+          ).
+
+          <travel>-TotalPrice += total_booking_price_per_curr.
+
+        ENDIF.
+
+      ENDLOOP.
+
+    ENDLOOP.
+
+    "EML
+    MODIFY ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    UPDATE
+    FIELDS ( TotalPrice )
+    WITH CORRESPONDING #( travels ).
+
+
   ENDMETHOD.
 
   METHOD rejectTravel.
@@ -274,6 +477,60 @@ CLASS lhc_Travel IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validateCustomer.
+
+    DATA customers TYPE SORTED TABLE OF /dmo/customer WITH UNIQUE KEY client customer_id.
+
+    "EML
+    READ ENTITIES OF ztravel_r_dfbp IN LOCAL MODE
+    ENTITY Travel
+    FIELDS ( CustomerID )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(travels).
+
+    customers = CORRESPONDING #( travels DISCARDING DUPLICATES MAPPING customer_id = CustomerID EXCEPT * ).
+
+    DELETE customers WHERE customer_id IS INITIAL.
+
+    IF  customers IS NOT INITIAL.
+
+      SELECT FROM /dmo/customer AS db
+      INNER JOIN @customers AS it ON it~customer_id EQ db~customer_id
+      FIELDS db~customer_id
+      INTO TABLE @DATA(valid_customers).
+
+    ENDIF.
+
+    LOOP AT travels INTO DATA(travel).
+
+      APPEND VALUE #( %tky = travel-%tky
+                      %state_area = 'VALIDATE_CUSTOMER' ) TO reported-travel.
+
+      IF travel-CustomerID IS INITIAL.
+
+        APPEND VALUE #( %tky = travel-%tky ) TO failed-travel.
+
+        APPEND VALUE #( %tky = travel-%tky
+                        %state_area = 'VALIDATE_CUSTOMER'
+                        %msg = NEW /dmo/cm_flight_messages( textid = /dmo/cm_flight_messages=>enter_customer_id
+                                                            severity = if_abap_behv_message=>severity-error )
+                        %element-CustomerId = if_abap_behv=>mk-on ) TO reported-travel.
+
+      ELSEIF NOT line_exists( valid_customers[ customer_id = travel-CustomerID ] ).
+
+        APPEND VALUE #( %tky = travel-%tky ) TO failed-travel.
+
+        APPEND VALUE #( %tky = travel-%tky
+                        %state_area = 'VALIDATE_CUSTOMER'
+                        %msg = NEW /dmo/cm_flight_messages( textid = /dmo/cm_flight_messages=>customer_unkown
+                                                            customer_id = travel-CustomerID
+                                                            severity = if_abap_behv_message=>severity-error )
+                        %element-CustomerId = if_abap_behv=>mk-on ) TO reported-travel.
+
+
+      ENDIF.
+
+    ENDLOOP.
+
   ENDMETHOD.
 
   METHOD validateDates.
