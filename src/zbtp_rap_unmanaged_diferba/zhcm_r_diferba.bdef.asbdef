@@ -1,0 +1,16 @@
+unmanaged implementation in class zbp_hcm_r_diferba unique;
+strict ( 2 );
+
+define behavior for ZHCM_R_DIFERBA alias HCM
+//late numbering
+lock master
+authorization master ( global, instance )
+etag master CreaDateTime
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly ) ENumber;
+  field (mandatory : create) EName;
+}
